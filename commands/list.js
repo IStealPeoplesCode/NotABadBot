@@ -21,29 +21,9 @@ exports = module.exports = async (client, msg, args) => {
       await newMsg.react("⬅");
     }
   };
-  args = args.join(" ");
-  if(!args) {
-    return msg.channel.send(new Discord.RichEmbed()
-      .setTitle("No results")
-      .setAuthor("", msg.author.displayAvatarURL)
-      .setDescription(`There were no results matching ${args}.`)
-      .setColor(0x00FFFF)
-      .setThumbnail(client.user.displayAvatarURL)
-    );
-  }
-  var keys = client.db.keyArray().filter(key => key.toLowerCase().startsWith(`${msg.guild.id}_${args.toLowerCase()}`));
-  if(!keys.length) {
-    return msg.channel.send(new Discord.RichEmbed()
-      .setTitle("No results")
-      .setAuthor("", msg.author.displayAvatarURL)
-      .setDescription(`There were no results matching ${args}.`)
-      .setColor(0x00FFFF)
-      .setThumbnail(client.user.displayAvatarURL)
-    );
-  }
+  var keys = client.db.keyArray().filter(key => key.startsWith(msg.guild.id));
   var values = client.utils.split(await Promise.all(keys.map(key => client.db.get(key))), 10);
   keys = client.utils.split(keys.map(key => key.split("_")[1]), 10);
-  
   var embed = new Discord.RichEmbed()
     .setTitle(values.map(val => val.length).reduce((a, b) => a+b, 0) + " result" + (values.map(val => val.length).reduce((a, b) => a+b, 0) === 1 ? "" : "s"))
     .setAuthor("", msg.author.displayAvatarURL)
@@ -72,12 +52,12 @@ exports = module.exports = async (client, msg, args) => {
     timeout = setTimeout(() => client.off("messageReactionAdd", reactionAdd), 30000);
   }
 };
-exports.call = "search"; // The name to call the command with
+exports.call = "list"; // The name to call the command with
 exports.permLevel = 0; // The permission level
 exports.description = ""; // The description
 exports.aliases = []; // Any aliases for the command
 exports.caseInsensitive = true; // Whether it should be case sensitive
-exports.argsRequired = true; // Whether arguments are required for the command to work
+exports.argsRequired = false; // Whether arguments are required for the command to work
 exports.enabled = true; // Whether the command is enabled
 exports.disabled = (client, msg, args) => "I'm sorry, but this command is disabled."; // Content sent when the command is called but not enabled
 exports.invalidUsage = (client, msg, args) => "I'm sorry, but you're using this command incorrectly."; // Content sent when the command is called without arguments but the command requires arguments to work
